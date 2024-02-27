@@ -54,7 +54,7 @@ async def fetch_cdb_temperature_async(
     duration, port, username, host, result_path
 ):
     # Adjust this command as necessary
-    cmd = f"./read_proc_temperature_CDB.sh -t {duration} -p {port} -u {username} -h {host}"
+    cmd = f"./src/read_proc_temperature_CDB.sh -t {duration} -p {port} -u {username} -h {host}"
     process = await asyncio.create_subprocess_shell(
         cmd, stdout=asyncio.subprocess.PIPE
     )
@@ -109,9 +109,6 @@ def main():
     host = args.host
     power_num = args.power_num
 
-    ###################################
-    # 데이터 추출
-    ###################################
     if power_num == 1:
         power_url = power_url1
     elif power_num == 2:
@@ -135,77 +132,6 @@ def main():
 
     # 병합된 데이터를 CSV 파일로 저장
     merged_df.to_csv(result_dir / "merged_data.csv", index=False)
-
-    ###################################
-    # 그래프 그리기
-    ###################################
-    merged_df["Timestamp"] = pd.to_datetime(merged_df["Timestamp"], unit="ms")
-    fig, ax1 = plt.subplots(figsize=(10, 6))
-
-    # 온도 데이터의 Y축 범위 설정
-    temperature_cols = [
-        "CPU Temperature",
-        "TPU Temperature",
-        "Ambient Temperature",
-    ]
-    temperature_range = [
-        merged_df[temperature_cols].min().min(),
-        merged_df[temperature_cols].max().max(),
-    ]
-    temperature_buffer = (temperature_range[1] - temperature_range[0]) * 0.1
-    ax1.set_ylim([0, temperature_range[1] + temperature_buffer])
-
-    color = "tab:red"
-    ax1.set_xlabel("Timestamp")
-    ax1.set_ylabel("Temperature (°C)", color=color)
-    ax1.plot(
-        merged_df["Timestamp"],
-        merged_df["CPU Temperature"],
-        label="CPU Temperature",
-        color="red",
-        marker="o",
-    )
-    ax1.plot(
-        merged_df["Timestamp"],
-        merged_df["TPU Temperature"],
-        label="TPU Temperature",
-        color="maroon",
-        marker="x",
-    )
-    ax1.plot(
-        merged_df["Timestamp"],
-        merged_df["Ambient Temperature"],
-        label="Ambient Temperature",
-        color="salmon",
-        marker="^",
-    )
-    ax1.tick_params(axis="y", labelcolor=color)
-
-    ax2 = ax1.twinx()  # 오른쪽 Y축 생성
-    color = "tab:blue"
-    ax2.set_ylabel("Power", color=color)  # 오른쪽 Y축 레이블
-    ax2.plot(
-        merged_df["Timestamp"],
-        merged_df["Power"],
-        label="Power",
-        color="blue",
-        marker="s",
-    )
-    ax2.tick_params(axis="y", labelcolor=color)
-    ax2.set_ylim([0, 5])  # Power의 Y축 범위 설정
-
-    tz = pytz.timezone("Asia/Seoul")
-    ax1.xaxis.set_major_locator(mdates.AutoDateLocator())
-    ax1.xaxis.set_major_formatter(
-        mdates.DateFormatter("%Y-%m-%d %H:%M:%S", tz=tz)
-    )
-    plt.setp(ax1.get_xticklabels(), ha="center", rotation=45)
-
-    legend = fig.legend(loc="lower right", bbox_to_anchor=(0.95, 0.25))
-    plt.tight_layout()
-    plt.title("Temperature and Power over Time")
-    plt.grid(True)
-    plt.savefig(result_dir / "visualize.png", bbox_extra_artists=(legend,))
 
 
 if __name__ == "__main__":
