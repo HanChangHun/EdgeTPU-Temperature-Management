@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 import time
 import asyncio
 import aiohttp
@@ -9,8 +10,9 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import pytz
 
-power_url = "https://getum34cpower-4dpuk4m42q-uc.a.run.app/"
-ambient_url = "https://getcenter309temperature-4dpuk4m42q-uc.a.run.app/"
+ambient_url = "https://asia-northeast1-center-309-68aa8.cloudfunctions.net/getCenter309Temperature"
+power_url1 = "https://asia-northeast1-center-309-68aa8.cloudfunctions.net/getUM34CPower1"
+power_url2 = "https://asia-northeast1-center-309-68aa8.cloudfunctions.net/getUM34CPower2"
 
 session = requests.Session()
 
@@ -20,7 +22,7 @@ async def fetch_data(session, url):
         return await response.json()
 
 
-async def fetch_web_data_async(duration, data_list, start_time):
+async def fetch_web_data_async(duration, data_list, start_time, power_url):
     async with aiohttp.ClientSession() as session:
         next_run_time = start_time
         for _ in range(duration):
@@ -61,14 +63,14 @@ async def fetch_cdb_temperature_async(
     result_path.append(result)
 
 
-async def fetch_all_data(duration, port, username, host):
+async def fetch_all_data(duration, port, username, host, power_url):
     web_data = []
     cdb_result_path = []
     start_time = time.time()
 
     # 비동기 작업 실행 및 데이터 수집
     web_task = asyncio.create_task(
-        fetch_web_data_async(duration, web_data, start_time)
+        fetch_web_data_async(duration, web_data, start_time, power_url)
     )
     cdb_task = asyncio.create_task(
         fetch_cdb_temperature_async(
@@ -91,33 +93,48 @@ def main():
     )
     parser.add_argument("-u", dest="username", type=str, help="User name")
     parser.add_argument("-H", dest="host", type=str, help="Host IP")
+    parser.add_argument(
+        "-P",
+        "--power_url_num",
+        dest="power_url_num",
+        type=int,
+        default=1,
+        help="Power URL number (1 or 2)",
+    )
 
     args = parser.parse_args()
     duration = args.dur
     port = args.port
     username = args.username
     host = args.host
+    power_url_num = args.power_url_num
 
     ###################################
     # 데이터 추출
     ###################################
+    if power_url_num == 1:
+        power_url = power_url1
+    elif power_url_num == 2:
+        power_url = power_url2
+    else:
+        raise ValueError("Invalid power URL number")
+
     loop = asyncio.get_event_loop()
     web_data, cdb_result_path = loop.run_until_complete(
-        fetch_all_data(duration, port, username, host)
+        fetch_all_data(duration, port, username, host, power_url)
     )
     loop.close()
 
-    date_str = cdb_result_path[0].split("_")[-2]
-    time_str = cdb_result_path[0].split("_")[-1].split(".")[0]
-    timestamp_str = date_str + "_" + time_str
+    timestamp_str = cdb_result_path[0]
+    result_dir = Path(f"result/{timestamp_str}")
 
     web_df = pd.DataFrame(web_data, columns=["Power", "Ambient Temperature"])
-    cdb_df = pd.read_csv(cdb_result_path[0])
+    cdb_df = pd.read_csv(result_dir / "proc_temp_data.csv")
     merged_df = pd.concat([cdb_df, web_df], axis=1)
     print(merged_df.head())
 
     # 병합된 데이터를 CSV 파일로 저장
-    merged_df.to_csv(f"result/merged_data_{timestamp_str}.csv", index=False)
+    merged_df.to_csv(result_dir / "merged_data.csv", index=False)
 
     ###################################
     # 그래프 그리기
@@ -188,9 +205,7 @@ def main():
     plt.tight_layout()
     plt.title("Temperature and Power over Time")
     plt.grid(True)
-    plt.savefig(
-        f"result/idle_vis_{timestamp_str}.png", bbox_extra_artists=(legend,)
-    )
+    plt.savefig(result_dir / "visualize.png", bbox_extra_artists=(legend,))
 
 
 if __name__ == "__main__":

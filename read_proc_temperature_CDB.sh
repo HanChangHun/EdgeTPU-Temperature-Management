@@ -25,7 +25,9 @@ if [ -z "$USER" ] || [ -z "$HOST" ]; then
     exit 1
 fi
 
-FILE_NAME="result/proc_temp_data_$(date +%Y%m%d_%H%M%S).csv"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+mkdir -p result/$TIMESTAMP
+FILE_NAME="result/$(date +%Y%m%d_%H%M%S)/proc_temp_data.csv"
 
 scp -P $PORT read_proc_temperature.py \
     $USER@$HOST:/tmp/read_proc_temperature.py
@@ -37,4 +39,4 @@ ssh -p $PORT $USER@$HOST \
     xargs -I {} scp -P $PORT $USER@$HOST:{} \
         "$FILE_NAME"
 
-echo $FILE_NAME
+echo $TIMESTAMP
