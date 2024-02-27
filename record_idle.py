@@ -95,8 +95,8 @@ def main():
     parser.add_argument("-H", dest="host", type=str, help="Host IP")
     parser.add_argument(
         "-P",
-        "--power_url_num",
-        dest="power_url_num",
+        "--power_num",
+        dest="power_num",
         type=int,
         default=1,
         help="Power URL number (1 or 2)",
@@ -107,14 +107,14 @@ def main():
     port = args.port
     username = args.username
     host = args.host
-    power_url_num = args.power_url_num
+    power_num = args.power_num
 
     ###################################
     # 데이터 추출
     ###################################
-    if power_url_num == 1:
+    if power_num == 1:
         power_url = power_url1
-    elif power_url_num == 2:
+    elif power_num == 2:
         power_url = power_url2
     else:
         raise ValueError("Invalid power URL number")
