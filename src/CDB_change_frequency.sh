@@ -1,19 +1,19 @@
 #!/bin/bash
 
-TPU_FREQ=500 # [62.5, 125, 250, 500] are available
-CPU_FREQ=1.5 # [0.5, 1.0, 1.5] are available
-PORT=22
-USER=""
+USER="mendel"
 HOST=""
+PORT=22
+CPU_FREQ=1.5 # [0.5, 1.0, 1.5] are available
+TPU_FREQ=500 # [62.5, 125, 250, 500] are available
 
 # Handles options and arguments.
-while getopts "t:c:p:u:h:" opt; do
+while getopts "u:h:p:c:t:" opt; do
     case $opt in
-    t) TPU_FREQ=$OPTARG ;;
-    c) CPU_FREQ=$OPTARG ;;
-    p) PORT=$OPTARG ;;
     u) USER=$OPTARG ;;
     h) HOST=$OPTARG ;;
+    p) PORT=$OPTARG ;;
+    c) CPU_FREQ=$OPTARG ;;
+    t) TPU_FREQ=$OPTARG ;;
     \?)
         echo "Invalid option: -$OPTARG" >&2
         exit 1
@@ -22,7 +22,7 @@ while getopts "t:c:p:u:h:" opt; do
 done
 
 if [ -z "$USER" ] || [ -z "$HOST" ]; then
-    echo "Usage: $0 -t <TPU_FREQ> -c <CPU_FREQ> -p <PORT> -u <USER> -h <HOST>"
+    echo "Usage: $0  -u <USER> -h <HOST> -p <PORT> -c <CPU_FREQ> -t <TPU_FREQ>"
     exit 1
 fi
 
@@ -30,3 +30,5 @@ scp -P $PORT ./src/CDB_change_frequency.py \
     $USER@$HOST:/tmp/CDB_change_frequency.py
 
 ssh -p $PORT $USER@$HOST "python3 /tmp/CDB_change_frequency.py -t $TPU_FREQ -c $CPU_FREQ"
+
+echo "CPU Frequency: $CPU_FREQ GHz, TPU Frequency: $TPU_FREQ MHz"

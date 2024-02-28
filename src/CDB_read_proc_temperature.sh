@@ -26,7 +26,7 @@ fi
 
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 mkdir -p result/$TIMESTAMP
-FILE_NAME="result/$(date +%Y%m%d_%H%M%S)/proc_temp_data.csv"
+OUTPUT_CSV_PATH="result/$TIMESTAMP/proc_temp_data.csv"
 
 scp -P $PORT ./src/CDB_read_proc_temperature.py \
     $USER@$HOST:/tmp/CDB_read_proc_temperature.py
@@ -40,6 +40,6 @@ ssh -p $PORT $USER@$HOST "python3 /tmp/CDB_read_proc_temperature.py -t $DUR"
 ssh -p $PORT $USER@$HOST \
     "ls -t /tmp/result/proc_temp_data_*.csv | head -n 1" |
     xargs -I {} scp -P $PORT $USER@$HOST:{} \
-        "$FILE_NAME"
+        "$OUTPUT_CSV_PATH"
 
 echo $TIMESTAMP
