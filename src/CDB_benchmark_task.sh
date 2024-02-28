@@ -33,12 +33,11 @@ if [ -z "$HOST" ] || [ -z "$MODEL_PATH" ] || [ -z "$OUTPUT_NAME" ]; then
     exit 1
 fi
 
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-mkdir -p result/$TIMESTAMP
-OUTPUT_CSV_PATH="result/$TIMESTAMP/$OUTPUT_NAME"
+mkdir -p result/benchmark
+OUTPUT_CSV_PATH="result/benchmark/$OUTPUT_NAME"
 
 # TODO: I think I need to create the directory earlier.
-ssh -p $PORT $USER@$HOST "mkdir -p /tmp/result"
+ssh -p $PORT $USER@$HOST "mkdir -p /tmp/result/benchmark"
 ssh -p $PORT $USER@$HOST "mkdir -p /tmp/test_data"
 
 scp -P $PORT ./src/CDB_benchmark_task.py \
@@ -48,10 +47,9 @@ scp -P $PORT $MODEL_PATH $USER@$HOST:/tmp/$MODEL_PATH
 ./src/CDB_change_frequency.sh -u $USER -h $HOST -p $PORT -c $CPU_FREQ -t $TPU_FREQ
 ./src/CDB_disable_fan.sh -u $USER -h $HOST -p $PORT
 
+
 ssh -p $PORT $USER@$HOST "python3 /tmp/CDB_benchmark_task.py -m /tmp/$MODEL_PATH -n $NUM_ITER -o $OUTPUT_NAME"
-scp -P $PORT $USER@$HOST:/tmp/result/$OUTPUT_NAME $OUTPUT_CSV_PATH
+scp -P $PORT $USER@$HOST:/tmp/result/benchmark/$OUTPUT_NAME $OUTPUT_CSV_PATH
 
-./src/CDB_enable_fan.sh -u $USER -h $HOST -p $PORT
-./src/CDB_change_frequency.sh -u $USER -h $HOST -p $PORT
-
-echo $TIMESTAMP
+# ./src/CDB_enable_fan.sh -u $USER -h $HOST -p $PORT
+# ./src/CDB_change_frequency.sh -u $USER -h $HOST -p $PORT

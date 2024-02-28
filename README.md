@@ -17,6 +17,7 @@
     chmod a+w /sys/devices/virtual/thermal/thermal_zone0/trip_point_4_temp; \
     echo "Set permission about TPU frequency"; \
     chmod a+w /sys/class/apex/apex_0/temp_poll_interval; \
+    echo 10 > /sys/class/apex/apex_0/temp_poll_interval; \
     chmod a+w /sys/class/apex/apex_0/trip_point0_temp; \
     chmod a+w /sys/class/apex/apex_0/trip_point1_temp; \
     chmod a+w /sys/class/apex/apex_0/trip_point2_temp; \

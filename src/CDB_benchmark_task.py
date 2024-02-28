@@ -2,7 +2,6 @@ from pathlib import Path
 import time
 import argparse
 
-import numpy as np
 import pandas as pd
 from pycoral.utils.edgetpu import make_interpreter
 
@@ -25,17 +24,14 @@ def benchmark_model(model_path: str, num_inferences: int = 100) -> float:
 def main():
     parser = argparse.ArgumentParser(description="Data visualization.")
     parser.add_argument("-m", "--model_path", type=str, required=True)
-    parser.add_argument("-n", "--num_inferences", type=int, default=100)
     parser.add_argument("-o", "--output_name", type=str, required=True)
+    parser.add_argument("-n", "--num_inferences", type=int, default=100)
 
     args = parser.parse_args()
-    model_path = args.model_path
-    output_name = args.output_name
-    num_inferences = args.num_inferences
 
-    output_path = Path("/tmp/result") / output_name
+    output_path = Path("/tmp/result/benchmark") / args.output_name
 
-    exec_times = benchmark_model(model_path, num_inferences)
+    exec_times = benchmark_model(args.model_path, args.num_inferences)
 
     df = pd.DataFrame({"Inference Time": exec_times})
     df.to_csv(output_path, index=False)

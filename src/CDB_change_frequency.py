@@ -2,6 +2,7 @@ import argparse
 from pathlib import Path
 import os
 from stat import S_IWOTH
+import time
 
 #############################
 # Please refer to the `README.md` file for permission settings.
@@ -36,7 +37,7 @@ def check_tpu_writable():
         )
 
     with open(POLL_INTERVAL_PATH, "w") as f:
-        f.write("1000")
+        f.write("10")
 
 
 def write_values(path, trip_points):
@@ -83,3 +84,4 @@ if __name__ == "__main__":
     check_tpu_writable()
     change_tpu_frequency(args.tpu_freq)
     change_cpu_frequency(args.cpu_freq)
+    time.sleep(5)
