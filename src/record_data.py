@@ -6,9 +6,6 @@ import aiohttp
 import requests
 
 import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-import pytz
 
 ambient_url = "https://asia-northeast1-center-309-68aa8.cloudfunctions.net/getCenter309Temperature"
 power_url1 = "https://asia-northeast1-center-309-68aa8.cloudfunctions.net/getUM34CPower1"
@@ -42,7 +39,7 @@ async def fetch_web_data_async(duration, data_list, start_time, power_url):
 
             data_list.append([power, ambient])
 
-            # 다음 실행 시간 업데이트
+            # Update next runtime
             next_run_time += 1
 
             print(
@@ -54,11 +51,11 @@ async def fetch_cdb_temperature_async(
     duration, port, username, host, result_path
 ):
     # Adjust this command as necessary
-    cmd = f"./src/read_proc_temperature_CDB.sh -t {duration} -p {port} -u {username} -h {host}"
+    cmd = f"./src/CDB_read_proc_temperature.sh -t {duration} -p {port} -u {username} -h {host}"
     process = await asyncio.create_subprocess_shell(
         cmd, stdout=asyncio.subprocess.PIPE
     )
-    stdout, stderr = await process.communicate()
+    stdout, _ = await process.communicate()
     result = stdout.decode().strip()
     result_path.append(result)
 
@@ -86,13 +83,15 @@ async def fetch_all_data(duration, port, username, host, power_url):
 def main():
     parser = argparse.ArgumentParser(description="Process some integers.")
     parser.add_argument(
-        "-t", dest="dur", type=int, default=10, help="Duration in seconds"
+        "-u", dest="username", type=str, default="mendel", help="User name"
     )
+    parser.add_argument("-H", dest="host", type=str, help="Host IP")
     parser.add_argument(
         "-p", dest="port", type=int, default=22, help="Port number"
     )
-    parser.add_argument("-u", dest="username", type=str, help="User name")
-    parser.add_argument("-H", dest="host", type=str, help="Host IP")
+    parser.add_argument(
+        "-t", dest="dur", type=int, default=10, help="Duration in seconds"
+    )
     parser.add_argument(
         "-P",
         "--power_num",
@@ -130,7 +129,7 @@ def main():
     merged_df = pd.concat([cdb_df, web_df], axis=1)
     print(merged_df.head())
 
-    # 병합된 데이터를 CSV 파일로 저장
+    # Save merged data as CSV file
     merged_df.to_csv(result_dir / "merged_data.csv", index=False)
 
 
