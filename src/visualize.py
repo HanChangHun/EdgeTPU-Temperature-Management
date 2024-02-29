@@ -51,6 +51,7 @@ def visualize_data(csv_path):
         marker="^",
     )
     ax1.tick_params(axis="y", labelcolor=color)
+    ax1.set_ylim([0, 80])  # Temperature의 Y축 범위 설정
 
     ax2 = ax1.twinx()  # 오른쪽 Y축 생성
     color = "tab:blue"
@@ -59,7 +60,7 @@ def visualize_data(csv_path):
         df["Timestamp"], df["Power"], label="Power", color="blue", marker="s"
     )
     ax2.tick_params(axis="y", labelcolor=color)
-    ax2.set_ylim([0, 5])  # Power의 Y축 범위 설정
+    ax2.set_ylim([0, 7.5])  # Power의 Y축 범위 설정
 
     tz = pytz.timezone("Asia/Seoul")
     ax1.xaxis.set_major_locator(mdates.AutoDateLocator())
@@ -68,11 +69,11 @@ def visualize_data(csv_path):
     )
     plt.setp(ax1.get_xticklabels(), rotation=45, ha="right")
 
-    legend = fig.legend(loc="lower right", bbox_to_anchor=(0.95, 0.25))
-    plt.tight_layout()
+    legend = fig.legend(loc="lower right", bbox_to_anchor=(0.93, 0.3))
+    plt.tight_layout(pad=2.0)
     plt.title("Temperature and Power over Time")
     plt.grid(True)
-    plt.savefig(result_dir / "visualize.png", bbox_extra_artists=(legend,))
+    plt.savefig(result_dir / "visualize.png")
 
 
 def main():

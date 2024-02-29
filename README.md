@@ -59,6 +59,13 @@ python3 src/inspect_data.py -p path/to/result
 ## Analyze WCET
 
 ```sh
-python3 src/analyze_wcet.py -u username -H hostname -p port -P power_num \
-                            -i num_iter -m path/to/model.tflite
+python3 src/analyze_wcet.py -u username -H hostname -p port \
+                            -n num_iter -m path/to/model.tflite
+```
+
+## Measure Activity Factor
+
+```sh
+python3 src/measure_activity_factor.py -u username -H hostname -p port \
+        -m path/to/model.tflite -e WCET -U utilization -t duration -P power_num
 ```

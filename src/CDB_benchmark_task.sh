@@ -45,10 +45,6 @@ scp -P $PORT ./src/CDB_benchmark_task.py \
 scp -P $PORT $MODEL_PATH $USER@$HOST:/tmp/$MODEL_PATH
 
 ./src/CDB_change_frequency.sh -u $USER -h $HOST -p $PORT -t $TPU_FREQ -c $CPU_FREQ
-./src/CDB_disable_fan.sh -u $USER -h $HOST -p $PORT
 
 ssh -p $PORT $USER@$HOST "python3 /tmp/CDB_benchmark_task.py -m /tmp/$MODEL_PATH -n $NUM_ITER -o $OUTPUT_NAME"
 scp -P $PORT $USER@$HOST:/tmp/result/benchmark/$OUTPUT_NAME $OUTPUT_CSV_PATH
-
-# ./src/CDB_enable_fan.sh -u $USER -h $HOST -p $PORT
-# ./src/CDB_change_frequency.sh -u $USER -h $HOST -p $PORT

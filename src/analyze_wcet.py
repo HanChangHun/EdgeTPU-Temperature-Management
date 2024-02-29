@@ -4,9 +4,8 @@ from collections import defaultdict
 import json
 from pathlib import Path
 import subprocess
-import time
-import numpy as np
 
+import numpy as np
 import pandas as pd
 
 
@@ -29,7 +28,7 @@ def benchmark_model(args, cpu_freq, tpu_freq):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Process some integers.")
+    parser = argparse.ArgumentParser()
     parser.add_argument(
         "-u", "--user", type=str, default="mendel", help="User name"
     )
@@ -47,6 +46,11 @@ def main():
 
     tpu_freqs = [500, 250, 125, 62.5]
     cpu_freqs = [1.5, 1.0, 0.5]
+
+    subprocess.check_output(
+        f"./src/CDB_disable_fan.sh -u {args.user} -h {args.host} -p {args.port}",
+        shell=True,
+    )
 
     benchmarks = defaultdict(lambda: defaultdict(dict))
 

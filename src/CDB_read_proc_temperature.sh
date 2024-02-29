@@ -31,11 +31,7 @@ OUTPUT_CSV_PATH="result/$TIMESTAMP/proc_temp_data.csv"
 scp -P $PORT ./src/CDB_read_proc_temperature.py \
     $USER@$HOST:/tmp/CDB_read_proc_temperature.py
 
-./src/CDB_disable_fan.sh -u $USER -h $HOST -p $PORT
-
 ssh -p $PORT $USER@$HOST "python3 /tmp/CDB_read_proc_temperature.py -t $DUR"
-
-./src/CDB_enable_fan.sh -u $USER -h $HOST -p $PORT
 
 ssh -p $PORT $USER@$HOST \
     "ls -t /tmp/result/proc_temp_data_*.csv | head -n 1" |
