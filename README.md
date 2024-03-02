@@ -38,10 +38,26 @@
     sudo systemctl start set-permissions.service
     ```
 
+## Naming Conventions
+
+This repository uses the following naming convention.
+
+- CDB_XXX.sh
+  - This is code that runs on the host, and internally executes commands for remote execution such as `ssh` or `scp`.
+- CDB_XXX.py
+  - This is Python code to run remotely. This code is not executed on the host.
+- XXX.py
+  - This code is executed by the Host. It mainly plays the following roles:
+    - Data extract
+      - All necessary preparations before measurement are also performed here.
+      - ex. Turn on/off fan, adjust frequency
+    - Data analysis
+    - Data visualization
+
 ## Record Data
 
 ```sh
-python3 src/record_data.py -u username -H hostname -p port -P power_num -t time
+python3 src/record_data.py -u $USER -H $HOST -p $PORT -t $DURATION -P $POWER_NUM -i $INTERVAL -o result/$(date +%Y%m%d_%H%M%S)
 ```
 
 ## Visualize Result
@@ -59,13 +75,13 @@ python3 src/inspect_data.py -p path/to/result
 ## Analyze WCET
 
 ```sh
-python3 src/analyze_wcet.py -u username -H hostname -p port \
-                            -n num_iter -m path/to/model.tflite
+python3 src/analyze_wcet.py -u $USER -H $HOST -p $PORT \
+                            -n $NUM_ITER -m path/to/model.tflite
 ```
 
 ## Measure Activity Factor
 
 ```sh
 python3 src/measure_activity_factor.py -u username -H hostname -p port \
-        -m path/to/model.tflite -e WCET -U utilization -t duration -P power_num
+        -m path/to/model.tflite -e $WCET -U $UTIL -t $DURATION -P $POWER_NUM
 ```

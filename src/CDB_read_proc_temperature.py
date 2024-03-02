@@ -10,32 +10,46 @@ def read_temperature(file_path):
 
 
 def main():
-    # 인자 파서를 생성합니다.
-    parser = argparse.ArgumentParser(description="Process some integers.")
+    parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-t", dest="dur", type=int, default=10, help="Duration in seconds"
+        "-t", "--dur", type=int, default=10, help="Duration in seconds"
+    )
+    parser.add_argument(
+        "-i", "--interval", type=float, default=1, help="Duration in seconds"
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        default="/tmp/result",
+        help="Output file path",
     )
 
-    # 인자를 파싱합니다.
     args = parser.parse_args()
 
-    output_file = Path(
-        f"/tmp/result/proc_temp_data_{time.strftime('%Y%m%d_%H%M%S')}.csv"
-    )
-    if not output_file.parent.exists():
-        output_file.parent.mkdir(parents=True, exist_ok=True)
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(output_file, "w", newline="") as f:
+    with open(output_path, "w", newline="") as f:
         fieldnames = [
             "Timestamp",
             "CPU Temperature",
             "TPU Temperature",
         ]
         writer = csv.DictWriter(f, fieldnames=fieldnames)
-
         writer.writeheader()
 
-        for _ in range(args.dur):
+        start_time = time.time()
+        total_iterations = int(args.dur / args.interval)
+
+        for i in range(total_iterations):
+            expected_time = start_time + i * args.interval
+            now = time.time()
+
+            # 현재 시간이 예상 시간을 넘었을 경우, 즉시 데이터를 기록
+            if now < expected_time:
+                time.sleep(expected_time - now)  # 정확한 시간까지 대기
+
             cpu_temp = read_temperature(
                 "/sys/class/thermal/thermal_zone0/temp"
             )
@@ -48,7 +62,6 @@ def main():
                     "TPU Temperature": tpu_temp,
                 }
             )
-            time.sleep(1)
 
 
 if __name__ == "__main__":
