@@ -19,7 +19,7 @@ def benchmark_model(args, cpu_freq, tpu_freq):
     output_name = args.output_name
     output_name = f"{output_name}_{tpu_freq}_{cpu_freq}.csv"
 
-    cmd = f"./src/CDB_benchmark_task.sh -u {user} -h {host} -p {port} \
+    cmd = f"./src/CDB_benchmark_task.sh -u {user} -H {host} -p {port} \
             -m {model_path} -o {output_name} -n {num_iter} -t {tpu_freq} -c {cpu_freq}"
     output = subprocess.check_output(cmd, shell=True)
     print(output.decode())

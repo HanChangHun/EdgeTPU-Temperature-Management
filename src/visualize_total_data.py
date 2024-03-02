@@ -69,7 +69,7 @@ def visualize_data(csv_path):
     )
     plt.setp(ax1.get_xticklabels(), rotation=45, ha="right")
 
-    legend = fig.legend(loc="lower right", bbox_to_anchor=(0.93, 0.3))
+    fig.legend(loc="lower right", bbox_to_anchor=(0.93, 0.3))
     plt.tight_layout(pad=2.0)
     plt.title("Temperature and Power over Time")
     plt.grid(True)
@@ -77,7 +77,7 @@ def visualize_data(csv_path):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Data visualization.")
+    parser = argparse.ArgumentParser()
     parser.add_argument(
         "-p",
         "--csv_path",

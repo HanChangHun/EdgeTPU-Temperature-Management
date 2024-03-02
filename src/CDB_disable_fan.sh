@@ -5,10 +5,10 @@ HOST=""
 PORT=22 # Set default port to 22
 
 # Handles options and arguments.
-while getopts "u:h:p:" opt; do
+while getopts "u:H:p:" opt; do
     case $opt in
     u) USER=$OPTARG ;;
-    h) HOST=$OPTARG ;;
+    H) HOST=$OPTARG ;;
     p) PORT=$OPTARG ;;
     \?)
         echo "Invalid option: -$OPTARG" >&2

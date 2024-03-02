@@ -7,10 +7,10 @@ TPU_FREQ=500 # [62.5, 125, 250, 500] are available
 CPU_FREQ=1.5 # [0.5, 1.0, 1.5] are available
 
 # Handles options and arguments.
-while getopts "u:h:p:t:c:" opt; do
+while getopts "u:H:p:t:c:" opt; do
     case $opt in
     u) USER=$OPTARG ;;
-    h) HOST=$OPTARG ;;
+    H) HOST=$OPTARG ;;
     p) PORT=$OPTARG ;;
     t) TPU_FREQ=$OPTARG ;;
     c) CPU_FREQ=$OPTARG ;;
@@ -22,7 +22,7 @@ while getopts "u:h:p:t:c:" opt; do
 done
 
 if [ -z "$USER" ] || [ -z "$HOST" ]; then
-    echo "Usage: $0  -u <USER> -h <HOST> -p <PORT> -t <TPU_FREQ> -c <CPU_FREQ>"
+    echo "Usage: $0  -u <USER> -H <HOST> -p <PORT> -t <TPU_FREQ> -c <CPU_FREQ>"
     exit 1
 fi
 
