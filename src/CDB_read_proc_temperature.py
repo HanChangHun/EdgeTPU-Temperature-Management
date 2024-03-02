@@ -15,7 +15,7 @@ def main():
         "-t", "--dur", type=int, default=10, help="Duration in seconds"
     )
     parser.add_argument(
-        "-i", "--interval", type=float, default=1, help="Duration in seconds"
+        "-i", "--interval", type=float, default=1.0, help="Duration in seconds"
     )
     parser.add_argument(
         "-o",

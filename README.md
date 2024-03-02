@@ -85,3 +85,11 @@ python3 src/analyze_wcet.py -u $USER -H $HOST -p $PORT \
 python3 src/measure_activity_factor.py -u username -H hostname -p port \
         -m path/to/model.tflite -e $WCET -U $UTIL -t $DURATION -P $POWER_NUM
 ```
+
+## Issue Solutions
+
+If the test stops in the middle and `libedgetpu.so` is occupied and subsequent tests cannot be run, perform the following on the Coral Dev Board.
+
+```sh
+fuser -k -9 /usr/lib/aarch64-linux-gnu/libedgetpu.so.1
+```
