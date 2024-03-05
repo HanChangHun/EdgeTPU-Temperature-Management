@@ -3,6 +3,8 @@ result/
 test_data/
 test/20240229_power_per_freq
 test/20240229_steady_temperature
+test/20240303_steady_temperature
+temp/
 
 # Created by https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,git
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,visualstudiocode,git

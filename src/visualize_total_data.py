@@ -35,6 +35,7 @@ def visualize_data(csv_path):
         label="CPU Temperature",
         color="red",
         marker="o",
+        markersize=2,
     )
     ax1.plot(
         df["Timestamp"],
@@ -42,6 +43,7 @@ def visualize_data(csv_path):
         label="TPU Temperature",
         color="maroon",
         marker="x",
+        markersize=2,
     )
     ax1.plot(
         df["Timestamp"],
@@ -49,6 +51,7 @@ def visualize_data(csv_path):
         label="Ambient Temperature",
         color="salmon",
         marker="^",
+        markersize=2,
     )
     ax1.tick_params(axis="y", labelcolor=color)
     ax1.set_ylim([0, 80])  # Temperature의 Y축 범위 설정
@@ -57,7 +60,12 @@ def visualize_data(csv_path):
     color = "tab:blue"
     ax2.set_ylabel("Power", color=color)  # 오른쪽 Y축 레이블
     ax2.plot(
-        df["Timestamp"], df["Power"], label="Power", color="blue", marker="s"
+        df["Timestamp"],
+        df["Power"],
+        label="Power",
+        color="blue",
+        marker="s",
+        markersize=2,
     )
     ax2.tick_params(axis="y", labelcolor=color)
     ax2.set_ylim([0, 7.5])  # Power의 Y축 범위 설정
