@@ -1,56 +1,53 @@
 import argparse
+import json
 from pathlib import Path
 import time
 import asyncio
 import aiohttp
-import requests
 
+from pymongo import MongoClient
 import pandas as pd
 
-ambient_url = "https://asia-northeast1-center-309-68aa8.cloudfunctions.net/getCenter309Temperature"
-power_url1 = "https://asia-northeast1-center-309-68aa8.cloudfunctions.net/getUM34CPower1"
-power_url2 = "https://asia-northeast1-center-309-68aa8.cloudfunctions.net/getUM34CPower2"
+with open("mongodb_config.json", "r") as f:
+    db_config = json.load(f)
 
-session = requests.Session()
-
-
-async def fetch_data(session, url):
-    async with session.get(url) as response:
-        return await response.json()
+client = MongoClient(db_config["client_url"])
+db = client[db_config["db_name"]]
 
 
-async def fetch_web_data_async(
-    duration, data_list, start_time, power_url, interval=1
-):
-    async with aiohttp.ClientSession() as session:
-        next_run_time = start_time
-        total_iter = int(duration / interval)
-        for _ in range(total_iter):
-            while time.time() < next_run_time:
-                await asyncio.sleep(1e-4)  # Wait a short time
+async def fetch_sensor_data(duration, start_time, power_id, interval=1):
+    data_list = []
+    loop = asyncio.get_running_loop()
 
-            power_task = asyncio.create_task(fetch_data(session, power_url))
-            ambient_task = asyncio.create_task(
-                fetch_data(session, ambient_url)
-            )
+    center_collection = db["Center309"]
+    um_collection = db["UM34C"]
 
-            power_response = await power_task
-            ambient_response = await ambient_task
+    next_run_time = start_time
+    total_iter = int(duration / interval)
+    for _ in range(total_iter):
+        while time.time() < next_run_time:
+            await asyncio.sleep(1e-4)  # Wait a short time
 
-            power = power_response["power"]
-            ambient = ambient_response["t1"]
+        power_response = await loop.run_in_executor(
+            None, um_collection.find_one, {"device_id": power_id}
+        )
+        ambient_response = await loop.run_in_executor(
+            None, center_collection.find_one, {"device_id": "center309_1"}
+        )
 
-            data_list.append([power, ambient])
+        data_list.append([power_response["power"], ambient_response["t1"]])
 
-            # Update next runtime
-            next_run_time += interval
+        # Update next runtime
+        next_run_time += interval
+        print(
+            f"Sensor data collected at {time.time() - start_time:.2f}"
+            f" seconds since start. Data: {data_list[-1]}"
+        )
 
-            print(
-                f"web data collected at {time.time() - start_time:.2f} seconds since start"
-            )
+    return data_list
 
 
-async def fetch_cdb_temperature_async(
+async def fetch_cdb_temperature(
     username, host, port, duration, interval, result_path
 ):
     # Adjust this command as necessary
@@ -64,26 +61,23 @@ async def fetch_cdb_temperature_async(
 
 
 async def fetch_all_data(
-    username, host, port, duration, power_url, interval, result_path
+    username, host, port, duration, power_id, interval, result_path
 ):
-    web_data = []
     start_time = time.time()
 
     # 비동기 작업 실행 및 데이터 수집
-    web_task = asyncio.create_task(
-        fetch_web_data_async(
-            duration, web_data, start_time, power_url, interval
-        )
+    sensor_task = asyncio.create_task(
+        fetch_sensor_data(duration, start_time, power_id, interval)
     )
     cdb_task = asyncio.create_task(
-        fetch_cdb_temperature_async(
+        fetch_cdb_temperature(
             username, host, port, duration, interval, result_path
         )
     )
 
-    await asyncio.gather(web_task, cdb_task)
+    sensor_data, _ = await asyncio.gather(sensor_task, cdb_task)
 
-    return web_data
+    return sensor_data
 
 
 def main():
@@ -123,9 +117,9 @@ def main():
 
     # Select power URL with power_num
     if args.power_num == 1:
-        power_url = power_url1
+        power_id = "um34c_1"
     elif args.power_num == 2:
-        power_url = power_url2
+        power_id = "um34c_2"
     else:
         raise ValueError("Invalid power URL number")
 
@@ -137,7 +131,7 @@ def main():
             args.host,
             args.port,
             args.dur,
-            power_url,
+            power_id,
             args.interval,
             result_dir,
         )

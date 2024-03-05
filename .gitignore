@@ -1,4 +1,5 @@
-serviceAccountKey.json
+mongodb_config.json
+
 result/
 test_data/
 test/20240229_power_per_freq
