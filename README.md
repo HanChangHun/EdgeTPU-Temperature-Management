@@ -22,15 +22,32 @@
     chmod a+w /sys/class/apex/apex_0/trip_point1_temp; \
     chmod a+w /sys/class/apex/apex_0/trip_point2_temp; \
     echo "Set permission about CPU frequency"; \
-    echo userspace > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor; \
-    chmod a+w /sys/devices/system/cpu/cpufreq/policy0/scaling_setspeed \
+    chmod a+w /sys/devices/system/cpu/cpufreq/policy0/scaling_governor; \
+    chmod a+w /sys/devices/system/cpu/cpufreq/policy0/scaling_setspeed; \
     '
 
     [Install]
     WantedBy=multi-user.target
     ```
 
-2. Reload and start service
+2. Edit `/etc/init.d/cpufrequtils`
+
+Starting from line 42, there is the following content.
+
+```sh
+...
+ENABLE="true"
+
+# **Change the GOVERNER**
+# GOVERNOR="ondemand"
+GOVERNOR="userspace"
+
+MAX_SPEED="0"
+MIN_SPEED="0"
+...
+```
+
+3. Reload and start service
 
     ```sh
     sudo systemctl daemon-reload
