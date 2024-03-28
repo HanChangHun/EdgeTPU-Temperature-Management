@@ -33,8 +33,8 @@ fi
 
 ssh -p $PORT $USER@$HOST "mkdir -p /tmp/test_data"
 
-scp -P $PORT ./src/CDB_exec_task.py \
+scp -q -P $PORT ./src/CDB_exec_task.py \
     $USER@$HOST:/tmp/CDB_exec_task.py
-scp -P $PORT $MODEL_PATH $USER@$HOST:/tmp/$MODEL_PATH
+scp -q -P $PORT $MODEL_PATH $USER@$HOST:/tmp/$MODEL_PATH
 
 ssh -p $PORT $USER@$HOST "python3 /tmp/CDB_exec_task.py -m /tmp/$MODEL_PATH -e $WCET -U $U_RATE -t $DUR"

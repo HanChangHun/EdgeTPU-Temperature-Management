@@ -26,7 +26,7 @@ if [ -z "$USER" ] || [ -z "$HOST" ]; then
     exit 1
 fi
 
-scp -P $PORT ./src/CDB_change_frequency.py \
+scp -q -P $PORT ./src/CDB_change_frequency.py \
     $USER@$HOST:/tmp/CDB_change_frequency.py
 
 ssh -p $PORT $USER@$HOST "python3 /tmp/CDB_change_frequency.py -t $TPU_FREQ -c $CPU_FREQ"

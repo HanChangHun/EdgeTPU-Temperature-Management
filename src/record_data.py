@@ -3,19 +3,14 @@ import json
 from pathlib import Path
 import time
 import asyncio
-import aiohttp
 
 from pymongo import MongoClient
 import pandas as pd
 
-with open("mongodb_config.json", "r") as f:
-    db_config = json.load(f)
 
-client = MongoClient(db_config["client_url"])
-db = client[db_config["db_name"]]
-
-
-async def fetch_sensor_data(duration, start_time, power_id, interval=1):
+async def fetch_sensor_data(
+    db: MongoClient, duration, start_time, power_id, interval=1
+):
     data_list = []
     loop = asyncio.get_running_loop()
 
@@ -61,13 +56,20 @@ async def fetch_cdb_temperature(
 
 
 async def fetch_all_data(
-    username, host, port, duration, power_id, interval, result_path
+    username,
+    host,
+    port,
+    db: MongoClient,
+    duration,
+    power_id,
+    interval,
+    result_path,
 ):
     start_time = time.time()
 
     # 비동기 작업 실행 및 데이터 수집
     sensor_task = asyncio.create_task(
-        fetch_sensor_data(duration, start_time, power_id, interval)
+        fetch_sensor_data(db, duration, start_time, power_id, interval)
     )
     cdb_task = asyncio.create_task(
         fetch_cdb_temperature(
@@ -81,7 +83,7 @@ async def fetch_all_data(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Process some integers.")
+    parser = argparse.ArgumentParser()
     parser.add_argument(
         "-u", "--user", type=str, default="mendel", help="User name"
     )
@@ -90,6 +92,12 @@ def main():
     )
     parser.add_argument(
         "-p", "--port", type=int, default=22, help="Port number"
+    )
+    parser.add_argument(
+        "--db_config",
+        type=str,
+        default="mongodb_config.json",
+        help="DB config file",
     )
     parser.add_argument(
         "-t", "--dur", type=int, default=10, help="Duration in seconds"
@@ -109,6 +117,12 @@ def main():
     )
 
     args = parser.parse_args()
+
+    with open(args.db_config, "r") as f:
+        db_config = json.load(f)
+
+    client = MongoClient(db_config["client_url"])
+    db = client[db_config["db_name"]]
 
     # Set up result directory
     output_dir = Path(args.output)
@@ -130,6 +144,7 @@ def main():
             args.user,
             args.host,
             args.port,
+            db,
             args.dur,
             power_id,
             args.interval,

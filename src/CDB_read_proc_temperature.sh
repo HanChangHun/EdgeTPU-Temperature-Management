@@ -32,10 +32,10 @@ fi
 mkdir -p $OUT_DIR
 OUTPUT_CSV_PATH="$OUT_DIR/proc_temp_data.csv"
 
-scp -P $PORT ./src/CDB_read_proc_temperature.py \
+scp -q -P $PORT ./src/CDB_read_proc_temperature.py \
     $USER@$HOST:/tmp/CDB_read_proc_temperature.py
 
 ssh -p $PORT $USER@$HOST "python3 /tmp/CDB_read_proc_temperature.py \
                             -t $DUR -i $INTERVAL -o /tmp/$OUTPUT_CSV_PATH"
 
-scp -P $PORT $USER@$HOST:/tmp/$OUTPUT_CSV_PATH $OUTPUT_CSV_PATH
+scp -q -P $PORT $USER@$HOST:/tmp/$OUTPUT_CSV_PATH $OUTPUT_CSV_PATH
